@@ -1,0 +1,13 @@
+Source: waxeye
+Section: unknown
+Priority: extra
+Maintainer: vagrant <dan@cloudkick.com>
+Build-Depends: debhelper (>= 7), plt-scheme
+Standards-Version: 3.8.3
+Homepage: http://waxeye.org/
+
+Package: waxeye
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>

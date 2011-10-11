@@ -61,10 +61,11 @@ waxeye = (function() {
     error_string += '\n' + this.getErrorString();
     return error_string;
   };
-  AST = function(_a, _b, _c) {
+  AST = function(_a, _b, _c, _d) {
     this.pos = _c;
     this.children = _b;
     this.type = _a;
+    this.startLine = _d;
     return this;
   };
   AST.prototype.toString = function() {
@@ -177,10 +178,10 @@ waxeye = (function() {
             } else if (_a === 1) {
               return res[0];
             } else {
-              return new AST(type, res, [startPos, this.inputPos]);
+              return new AST(type, res, [startPos, this.inputPos], startLine);
             }
           } else {
-            return new AST(type, res, [startPos, this.inputPos]);
+            return new AST(type, res, [startPos, this.inputPos], startLine);
           }
         } else {
           return this.updateError();

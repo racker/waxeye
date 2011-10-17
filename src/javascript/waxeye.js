@@ -29,15 +29,37 @@ waxeye = (function() {
   FA.LEFT = 2;
   FA.POS = 3;
   FA.NEG = 4;
-  ParseError = function(_a, _b, _c, _d) {
-    this.nt = _d;
-    this.col = _c;
-    this.line = _b;
-    this.pos = _a;
+  ParseError = function(_a, _b, _c, _d, _e) {
+    this.parser = _a;
+    this.nt = _e;
+    this.col = _d;
+    this.line = _c;
+    this.pos = _b;
     return this;
   };
+  ParseError.prototype.getErrorString = function() {
+    var error = '',
+        input = (this.parser.input) ? this.parser.input.replace(/\r/g, '').replace(/\n/g, ''): '',
+        string, i, len;
+
+    for (i = 0, len = this.parser.inputLen; i < len; i++) {
+      if (i === (this.col)) {
+        string = '^';
+      }
+      else {
+        string = ' ';
+      }
+
+      error += string;
+    }
+
+    error = input + '\n' + error;
+    return error;
+  };
   ParseError.prototype.toString = function() {
-    return "parse error: failed to match '" + this.nt + "' at line=" + this.line + ", col=" + this.col + ", pos=" + this.pos;
+    var error_string = "parse error: failed to match '" + this.nt + "' at line=" + this.line + ", col=" + this.col + ", pos=" + this.pos;
+    error_string += '\n' + this.getErrorString();
+    return error_string;
   };
   AST = function(_a, _b, _c, _d) {
     this.pos = _c;
@@ -241,7 +263,7 @@ waxeye = (function() {
     return ch;
   };
   InnerParser.prototype.doEOFCheck = function(res) {
-    return res ? this.eofCheck && this.inputPos < this.inputLen ? new ParseError(this.errorPos, this.errorLine, this.errorCol, this.errorNT) : res : new ParseError(this.errorPos, this.errorLine, this.errorCol, this.errorNT);
+    return res ? this.eofCheck && this.inputPos < this.inputLen ? new ParseError(this, this.errorPos, this.errorLine, this.errorCol, this.errorNT) : res : new ParseError(this, this.errorPos, this.errorLine, this.errorCol, this.errorNT);
   };
   InnerParser.prototype.withinSet = function(set, index, c) {
     var aa;

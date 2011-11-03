@@ -56,7 +56,11 @@ waxeye = (function() {
           }
         }
 
-        error += string + '\n';
+        error += string;
+
+        if (this.line !== leni) {
+          error += '\n';
+        }
       }
     }
 

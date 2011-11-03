@@ -39,21 +39,27 @@ waxeye = (function() {
   };
   ParseError.prototype.getErrorString = function() {
     var error = '',
-        input = (this.parser.input) ? this.parser.input.replace(/\r/g, '').replace(/\n/g, ''): '',
-        string, i, len;
+        lines = this.parser.input.split(/\r\n|\r|\n/g),
+        string = '', line, i, leni, j, lenj;
 
-    for (i = 0, len = this.parser.inputLen; i < len; i++) {
-      if (i === (this.col)) {
-        string = '^';
-      }
-      else {
-        string = ' ';
-      }
+    for (i = 0, leni = lines.length; i < leni; i++) {
+      line = lines[i];
+      error += line + '\n';
 
-      error += string;
+      if (i === (this.line - 1)) {
+        for (j = 0, lenj = this.col; j <= lenj; j++) {
+          if (j === (this.col)) {
+            string += '^';
+          }
+          else {
+            string += ' ';
+          }
+        }
+
+        error += string + '\n';
+      }
     }
 
-    error = input + '\n' + error;
     return error;
   };
   ParseError.prototype.toString = function() {

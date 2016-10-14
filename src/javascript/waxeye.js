@@ -29,20 +29,53 @@ waxeye = (function() {
   FA.LEFT = 2;
   FA.POS = 3;
   FA.NEG = 4;
-  ParseError = function(_a, _b, _c, _d) {
-    this.nt = _d;
-    this.col = _c;
-    this.line = _b;
-    this.pos = _a;
+  ParseError = function(_a, _b, _c, _d, _e) {
+    this.parser = _a;
+    this.nt = _e;
+    this.col = _d;
+    this.line = _c;
+    this.pos = _b;
     return this;
   };
-  ParseError.prototype.toString = function() {
-    return "parse error: failed to match '" + this.nt + "' at line=" + this.line + ", col=" + this.col + ", pos=" + this.pos;
+  ParseError.prototype.getErrorString = function() {
+    var error = '',
+        lines = this.parser.input.split(/\r\n|\r|\n/g),
+        string = '', line, i, leni, j, lenj;
+
+    for (i = 0, leni = lines.length; i < leni; i++) {
+      line = lines[i];
+      error += line + '\n';
+
+      if (i === (this.line - 1)) {
+        for (j = 0, lenj = this.col; j <= lenj; j++) {
+          if (j === (this.col)) {
+            string += '^';
+          }
+          else {
+            string += ' ';
+          }
+        }
+
+        error += string;
+
+        if (this.line !== leni) {
+          error += '\n';
+        }
+      }
+    }
+
+    return error;
   };
-  AST = function(_a, _b, _c) {
+  ParseError.prototype.toString = function() {
+    var error_string = "parse error: failed to match '" + this.nt + "' at line=" + this.line + ", col=" + this.col + ", pos=" + this.pos;
+    error_string += '\n' + this.getErrorString();
+    return error_string;
+  };
+  AST = function(_a, _b, _c, _d) {
     this.pos = _c;
     this.children = _b;
     this.type = _a;
+    this.startLine = _d;
     return this;
   };
   AST.prototype.toString = function() {
@@ -155,10 +188,10 @@ waxeye = (function() {
             } else if (_a === 1) {
               return res[0];
             } else {
-              return new AST(type, res, [startPos, this.inputPos]);
+              return new AST(type, res, [startPos, this.inputPos], startLine);
             }
           } else {
-            return new AST(type, res, [startPos, this.inputPos]);
+            return new AST(type, res, [startPos, this.inputPos], startLine);
           }
         } else {
           return this.updateError();
@@ -240,7 +273,7 @@ waxeye = (function() {
     return ch;
   };
   InnerParser.prototype.doEOFCheck = function(res) {
-    return res ? this.eofCheck && this.inputPos < this.inputLen ? new ParseError(this.errorPos, this.errorLine, this.errorCol, this.errorNT) : res : new ParseError(this.errorPos, this.errorLine, this.errorCol, this.errorNT);
+    return res ? this.eofCheck && this.inputPos < this.inputLen ? new ParseError(this, this.errorPos, this.errorLine, this.errorCol, this.errorNT) : res : new ParseError(this, this.errorPos, this.errorLine, this.errorCol, this.errorNT);
   };
   InnerParser.prototype.withinSet = function(set, index, c) {
     var aa;
